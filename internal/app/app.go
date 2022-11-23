@@ -10,7 +10,9 @@ import (
 
 	"github.com/matsuev/klsh-registrator/internal/config"
 	"github.com/matsuev/klsh-registrator/internal/logging"
+	"github.com/matsuev/klsh-registrator/internal/router"
 	"github.com/matsuev/klsh-registrator/internal/server"
+	"github.com/matsuev/klsh-registrator/internal/service"
 )
 
 // Application struct
@@ -22,7 +24,12 @@ type Application struct {
 
 // New function
 func New(cfg *config.Config, logger *logging.Logger) (*Application, error) {
-	var handler http.Handler
+	service, err := service.New()
+	if err != nil {
+		return nil, err
+	}
+
+	handler := router.New(cfg.Router, service)
 
 	appInstance := &Application{
 		logger: logger,

@@ -6,6 +6,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Config ...
+type Config struct {
+	IsDebug bool `yaml:"is_debug" env-default:"false"`
+}
+
+// DefaultConfig function
+func DefaultConfig() *Config {
+	return &Config{
+		IsDebug: false,
+	}
+}
+
+// ServiceInterface ...
 type ServiceInterface interface {
 	AuthSignIn() error
 	AuthSignUp() error
@@ -13,34 +26,36 @@ type ServiceInterface interface {
 	UsersCreate() error
 }
 
+// Router ...
 type Router struct {
 	router  *gin.Engine
 	service ServiceInterface
 }
 
-// NewRouter function
-func NewRouter(service ServiceInterface) *Router {
-	gin.SetMode(gin.ReleaseMode)
+// New function
+func New(cfg *Config, service ServiceInterface) http.Handler {
+	if !cfg.IsDebug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	r := gin.New()
-	r.Use(
+	handler := &Router{
+		router:  gin.New(),
+		service: service,
+	}
+
+	handler.router.Use(
 		gin.Logger(),
 		gin.Recovery(),
 	)
 
-	router := &Router{
-		router:  r,
-		service: service,
-	}
+	handler.registerHandlers()
 
-	router.registerHandlers()
-
-	return router
+	return handler
 }
 
-// GetHandler function
-func (r *Router) GetHandler() http.Handler {
-	return r.router
+// ServeHTTP function
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	r.router.ServeHTTP(w, req)
 }
 
 // registerHandlers function

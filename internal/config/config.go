@@ -5,6 +5,7 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/matsuev/klsh-registrator/internal/logging"
+	"github.com/matsuev/klsh-registrator/internal/router"
 	"github.com/matsuev/klsh-registrator/internal/server"
 )
 
@@ -16,6 +17,7 @@ const (
 type Config struct {
 	Logger *logging.Config `yaml:"logger"`
 	Server *server.Config  `yaml:"server"`
+	Router *router.Config  `yaml:"router"`
 }
 
 // DefaultConfig function
@@ -23,6 +25,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		Logger: logging.DefaultConfig(),
 		Server: server.DefaultConfig(),
+		Router: router.DefaultConfig(),
 	}
 }
 
