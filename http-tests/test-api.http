@@ -1,0 +1,18 @@
+@host = localhost
+@port = 8082
+
+GET http://{{host}}:{{port}}/auth/sign-in
+
+###
+
+GET http://{{host}}:{{port}}/auth/sign-up
+
+###
+
+GET http://{{host}}:{{port}}/api/users
+
+###
+
+POST http://{{host}}:{{port}}/api/users
+
+##
