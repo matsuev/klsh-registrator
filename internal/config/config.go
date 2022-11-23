@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/matsuev/klsh-registrator/internal/logging"
@@ -15,17 +16,19 @@ const (
 
 // Config ...
 type Config struct {
-	Logger *logging.Config `yaml:"logger"`
-	Server *server.Config  `yaml:"server"`
-	Router *router.Config  `yaml:"router"`
+	Shutdown time.Duration   `yaml:"shutdown" env-default:"10s"`
+	Logger   *logging.Config `yaml:"logger"`
+	Server   *server.Config  `yaml:"server"`
+	Router   *router.Config  `yaml:"router"`
 }
 
 // DefaultConfig function
 func DefaultConfig() *Config {
 	return &Config{
-		Logger: logging.DefaultConfig(),
-		Server: server.DefaultConfig(),
-		Router: router.DefaultConfig(),
+		Shutdown: 10 * time.Second,
+		Logger:   logging.DefaultConfig(),
+		Server:   server.DefaultConfig(),
+		Router:   router.DefaultConfig(),
 	}
 }
 

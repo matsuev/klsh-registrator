@@ -1,3 +1,5 @@
+shutdown: 10s
+
 logger:
   is_debug: true
 
@@ -6,4 +8,4 @@ server:
   port: 8082
 
 router:
-  is_debug: true
+  is_debug: false

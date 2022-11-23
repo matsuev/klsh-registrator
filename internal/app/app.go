@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/matsuev/klsh-registrator/internal/config"
 	"github.com/matsuev/klsh-registrator/internal/logging"
@@ -23,7 +22,12 @@ type Application struct {
 }
 
 // New function
-func New(cfg *config.Config, logger *logging.Logger) (*Application, error) {
+func New(cfg *config.Config) (*Application, error) {
+	logger, err := logging.New(cfg.Logger)
+	if err != nil {
+		return nil, err
+	}
+
 	service, err := service.New()
 	if err != nil {
 		return nil, err
@@ -41,26 +45,29 @@ func New(cfg *config.Config, logger *logging.Logger) (*Application, error) {
 }
 
 // Run function
-func (a *Application) Run() error {
+func (a *Application) Run() {
+	defer a.Shutdown()
+
 	doneChan := make(chan os.Signal, 1)
 	signal.Notify(doneChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		if err := a.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			a.logger.Infof("listen: %s\n", err)
+			a.logger.Fatal("listen error: %s\n", err)
 		}
 	}()
 
 	<-doneChan
+}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// Shutdown function
+func (a *Application) Shutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), a.cfg.Shutdown)
 	defer func() {
 		cancel()
 	}()
 
 	if err := a.srv.Shutdown(ctx); err != nil && err != http.ErrServerClosed {
-		return err
+		a.logger.Fatal("shutdown error: %s\n", err)
 	}
-
-	return nil
 }
